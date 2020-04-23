@@ -180,6 +180,72 @@ E.psi <- predict(fm.occu, type="state", newdata=ef)
 plot(E.psi, axes=FALSE, col=terrain.colors(100))
 
 
+################################################################################
+#23/04/2020
+
+# Preparación de los datos con R
+
+# Para añadir las covariables ambientales a nuestro dataset a partir de cargografía digital
+# podemos usar un GIS o lo podemos hacer diréctamente con R.
+
+# Instalamos los paquetes si fuese necesario
+#install.packages("rgdal")
+#install.packages("raster")
+
+library(rgdal)
+library(raster)
+
+# Vamos a cargar la capa shape con las variables ambientales
+covar_shape <- readOGR("/home/javifl/IREC/master_david/variables/variables_rx.shp")
+
+# Vamos a echar un vistazo a la tabla de atributos de la capa:
+head(covar_shape@data)
+
+# Vamos a ver cuantas cuadrículas tiene esta capa (es decir, el número de filas de la tabla de atributos)
+nrow(covar_shape@data)
+# Esta capa tiene 29532 cuadrículas
+
+# Vemos que tiene 14 columnas: SP_ID, ID, X, Y, HA, FINCA_N...
+# Ahora queremos los valores de esas columnas para cada uno de nuestras cámaras
+
+# Cargamos las localizaciones de las cámaras. Para agilizar el proceso hemos creado
+# un archivo .csv con tres columnas: el ID, la coordenada X y la coordenada Y
+# OJO! Las coordenadas de las cámaras están en EPGS89/UTM-30 mientras que la capa
+# de covariables está en EPGS89/UTM-29. Se ha cambiado en este nuevo fichero.
+
+xy_2015 <- read.csv("/home/javifl/IREC/master_david/xy_2015.csv")
+
+# Echamos un vistazo a esta capa de puntos:
+head(xy_2015)
+
+# Vamos a comprobar cuantas cámaras tenemos (es decir, número de filas de "xy_2015")
+nrow(xy_2015)
+# 38 cámaras
+
+
+# Podemos graficar ambos objetos, (la capa de covariables ve muy negra por la densidad de cuadrículas)
+plot(covar_shape)
+points(xy_2015[,2:3], col = "red")
+
+
+# Ahora podemos extraer los valores de la capa "covar_shape" para cada uno de los puntos de la capa "xy_2015"
+# Esto se suele hacer en QGIS con la herramienta "Point Sampling Tools" (el pincho moruno)
+# Para ello utilizamos la función "extract" del paquete "raster".
+# OJO! La primera columna de la capa "xy_2015" es el ID y no se debe utilizar. Por eso usamos "xy_2015[,2:3]"
+covar_2015 <- extract(covar_shape, xy_2015[,2:3])
+
+# Vamos a ver el número de filas (debería coincidir con el número de cámaras)
+nrow(covar_2015)
+# 38 filas
+
+# Echamos un vistazo al nuevo objeto:
+head(covar_2015)
+
+# Finalmente, vemos que las dos primeras columnas nos marcan los "ID" tanto de la capa de cámaras ("point.ID")
+# como de la capa de covariables ("poly.ID"). A continuación tenemos todos los campos (columnas) de la capa
+# de covariables para cada una de las localizaciones de las cámaras. Podemos exportar como .csv este objeto
+# para poder abrirlo con excel:
+write.csv(covar_2015, "miruta/covar_2015.csv")
 
 
 
