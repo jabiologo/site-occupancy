@@ -11,7 +11,7 @@
 
 #https://cornelllabofornithology.github.io/ebird-best-practices/occupancy.html
 
-
+#https://cals.arizona.edu/classes/wfsc578/PointCountsAbundance_ELOW.R
 
 ################################################################################
 # 15/04/2020
