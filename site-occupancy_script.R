@@ -210,8 +210,8 @@ nrow(covar_shape@data)
 
 # Cargamos las localizaciones de las cámaras. Para agilizar el proceso hemos creado
 # un archivo .csv con tres columnas: el ID, la coordenada X y la coordenada Y
-# OJO! Las coordenadas de las cámaras están en EPGS89/UTM-30 mientras que la capa
-# de covariables está en EPGS89/UTM-29. Se ha cambiado en este nuevo fichero.
+# OJO! Las coordenadas de las cámaras están en ETRS89/UTM-30 mientras que la capa
+# de covariables está en ETRS89/UTM-29. Se ha cambiado en este nuevo fichero.
 
 xy_2015 <- read.csv("/home/javifl/IREC/master_david/xy_2015.csv")
 
