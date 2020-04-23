@@ -1,7 +1,20 @@
-# Máster David Ferrer 15/04/2020
+# Máster David Ferrer 
+
+# Algunos links útiles sobre site-occupancy models:
+
+
+#https://sites.google.com/site/asrworkshop/home/schedule/r-occupancy-1
+
+#https://cran.r-project.org/web/packages/unmarked/vignettes/spp-dist.pdf
+
+#https://a4688ce6-a-62cb3a1a-s-sites.googlegroups.com/site/asrworkshop/home/schedule/r-occupancy-1/unmarked.pdf?attachauth=ANoY7coxpbxl7F0uTBsRdUnVHzhJnhV9Nu7xyt6XeWvI9375NJ3dDVGEspvUqMp4arNi1pFJ_X8VggpqrsLertaWJ5xvZbIVnpxa1zG2CmihMDFAgg0VvCzTMLbFl7NCPnpLIU0Puqf3xWCnYmAbdvcFiyzCRs14JwlaRCd4f3apbefxBBXKsPEIJpGkRf8cMW5kiZ9_HO5D0ijPbt5J3iNnZkRv8rpam_20-u_Ij8m5uhoc6l3X9xOj2p1VrXP3C_ywFJHWwKX0&attredirects=0
+
+#https://cornelllabofornithology.github.io/ebird-best-practices/occupancy.html
+
+
 
 ################################################################################
-
+# 15/04/2020
 # Funcionalidades básicas con unmarked
 # Este script está sacado de: https://sites.google.com/site/asrworkshop/home/schedule/r-occupancy-1
 # Los datos pueden adquirirse en esa dirección
