@@ -265,7 +265,7 @@ write.csv(covar_2015, "miruta/covar_2015.csv")
 # 08/05/2020
 # Calibración del N-mixture model Royle (2004)
 
-data <- read.csv("/home/javifl/IREC/master_david/pcount/datos_2015limpio.csv")
+data <- read.csv("datos_2015limpio.csv")
 
 # Seleccionamos una especie
 dataciervo <- data[data$sp == "ciervo",]
