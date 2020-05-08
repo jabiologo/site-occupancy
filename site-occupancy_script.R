@@ -261,6 +261,59 @@ head(covar_2015)
 write.csv(covar_2015, "miruta/covar_2015.csv")
 
 
+################################################################################
+# 08/05/2020
+# Calibración del N-mixture model Royle (2004)
+
+data <- read.csv("/home/javifl/IREC/master_david/pcount/datos_2015limpio.csv")
+
+# Seleccionamos una especie
+dataciervo <- data[data$sp == "ciervo",]
+
+# Nos quedamos solo con 4 ocasiones, las que mas datos tiene. Habrá que probar 
+# con todas las ocasiones y ver qué pasa con los NA
+dataciervo <- dataciervo[,c(1:2,9:12, 21:28)]
+
+# De momento vamos a omitir los NA
+dataciervo <- na.omit(dataciervo)
+
+# Guardamos los conteos de cienca y el número de sitios
+y <- dataciervo[,3:6]
+n <- nrow(dataciervo)
+
+# Guardamos las covariables. Ojo, vamos a estandarizarlas con la función scale
+d2015.site <- data.frame(scale(dataciervo[,7:14]))
+
+# Guardamos las ocasiones en time
+time <- as.factor(rep(c(1:4),n))
+d2015.obs <- data.frame(time)
+
+# Lo juntamos todo 
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site, obsCovs = d2015.obs)
+
+# Calibramos los modelos
+fm1 <- pcount(~1 ~dvera, d2015c, K = 150)
+
+fm2 <- pcount(~time ~dvera, d2015c, K = 150)
+
+fm3 <- pcount(~1 ~dwat, d2015c, K = 150)
+
+fm4 <- pcount(~time ~dwat, d2015c, K = 150)
+
+fm5 <- pcount(~1 ~v1+v2+v3+v4+v5+v6, d2015c, K = 150)
+
+fm6 <- pcount(~time ~v1+v2+v3+v4+v5+v6, d2015c, K = 150)
+
+fm7 <- pcount(~1 ~dvera + dwat, d2015c, K = 150)
+
+fm8 <- pcount(~time ~dvera + dwat, d2015c, K = 150)
+
+fm9 <- pcount(~1 ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
+
+fm10 <- pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
+
+
+
 
 
 
