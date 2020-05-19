@@ -81,7 +81,7 @@ fm1
 
 # Aquí tenemos los Estimates. Ojo, porque unmarked nos los da transformados (logit en este caso)
 # Para obtenerlos sin transformar podremos usar la función backTransform() indicando el estimate
-# que queremos "destransformar"
+# que queremos "detransformar"
 
 # Para la probabilidad de detección:
 backTransform(fm1,'det')
@@ -264,6 +264,7 @@ write.csv(covar_2015, "miruta/covar_2015.csv")
 ################################################################################
 # 08/05/2020
 # Calibración del N-mixture model Royle (2004)
+# setwd("/home/javifl/IREC/master_david/pcount")
 
 data <- read.csv("datos_2015limpio.csv")
 
@@ -313,8 +314,120 @@ fm9 <- pcount(~1 ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
 fm10 <- pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
 
 
+################################################################################
+# 19/05/2020
+# Proyección de las predicciones de N-mixture model Royle (2004)
+# setwd("/home/javifl/IREC/master_david/pcount")
+
+# Vamos a correr un modelo para ciervo usando la función pcount con todas las covariables
+# de igual forma que la vez anterior (vamos a asumir que este es el mejor modelo)
+
+# Preparamos los datos
+data <- read.csv("datos_2015limpio.csv")
+dataciervo <- data[data$sp == "ciervo",]
+dataciervo <- dataciervo[,c(1:2,9:12, 21:28)]
+dataciervo <- na.omit(dataciervo)
+y <- dataciervo[,3:6]
+n <- nrow(dataciervo)
+d2015.site <- data.frame(scale(dataciervo[,7:14]))
+time <- as.factor(rep(c(1:4),n))
+d2015.obs <- data.frame(time)
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site, obsCovs = d2015.obs)
+
+# Corremos un modelo nulo. Si no ponemos nada, pcount() asume que la abundancia sigue una Poisson
+null <- pcount(~1 ~1, data = d2015c, K = 150) 
+null
+
+# Convertimos los estimates de link a la escla original. Ojo, esta función solo sirve
+# cuando los procesos de detección / abundancia (state) no tienen covariables
+backTransform(null, type="state")	# Abundancia
+backTransform(null, type="det")		# Probabilidad de detección
+
+# Una forma de hacer lo mismo sería:
+exp(coef(null, type="state"))		# Abundancia
+plogis(coef(null, type="det"))		# Probabilidad de detección
+
+# Vamos a ajustar un modelo más complejo:
+Time.VeraWat <- pcount(~time ~dvera+dwat, d2015c, K = 150)
+
+# Examinamos los estimates (backtransformados)
+coef(Time.VeraWat, type="state")      # on the link scale (= log)
+exp(coef(Time.VeraWat, type="state")) # backtransforado (= raised to base e)
+coef(Time.VeraWat, type="det")         # on the link scale (= logit)
+plogis(coef(Time.VeraWat, type="det")) # backtransforado (= inverse logit)
+
+#-- Vamos a relacionar la probabilidad de detección con respecto al time
+plot(plogis(coef(Time.VeraWat, type="det")), xlab="time", ylab= "probabilidad de detección")
+lines(plogis(coef(Time.VeraWat, type="det")))
 
 
 
 
+#############
 
+# 19/05/2020
+# Proyección de las predicciones de N-mixture model Royle (2004)
+# setwd("/home/javifl/IREC/master_david/pcount")
+
+# Vamos a correr un modelo para ciervo usando la función pcount con todas las covariables
+# de igual forma que la vez anterior (vamos a asumir que este es el mejor modelo)
+
+# Preparamos los datos
+data <- read.csv("datos_2015limpio.csv")
+dataciervo <- data[data$sp == "ciervo",]
+dataciervo <- dataciervo[,c(1:2,9:12, 21:28)]
+dataciervo <- na.omit(dataciervo)
+y <- dataciervo[,3:6]
+n <- nrow(dataciervo)
+d2015.site <- data.frame(scale(dataciervo[,7:14]))
+time <- as.factor(rep(c(1:4),n))
+d2015.obs <- data.frame(time)
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site, obsCovs = d2015.obs)
+
+# Corremos el modelo completo
+mcompleto <- pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
+
+# Lo inspeccionamos
+summary(mcompleto)
+
+# Aquí podemos ver las dos partes de las que se compone el modelo. Por un lado la abundancia,
+# que viene determinada por las covariables ambientales, y por otro lado la probabilidad de
+# detección, que viene determinada por las ocasiones en las que hemos muestreado. Podemos
+# hacernos algunas preguntas:
+
+# Según este modelo
+# ¿Qué variable es la que más influye en la abundancia de ciervos? ¿Por qué?
+# ¿En qué ocasión es más probable que detectemos un ciervo? ¿Qué podría significar?
+
+# Si diésemos por bueno este modelo, podríamos proyectar sus predicciones de abundancia sobre
+# el mapa de nuestras covariables. Esto sería "resolver la ecuación" para cada una de las celdillas
+# de nuestro mapa, dado que conocemos el valor de todas las covariables ambientales para todo el
+# área de estudio.
+
+# Para hacerlo, cargaremos el shapefile en R usando el paquete rgdal
+library(rgdal)
+shp <- readOGR("/home/javifl/IREC/master_david/variables/variables_rx.shp")
+
+# Cambiamos el nombre de las variables del shapefile para que coincida exactamente con el nombre
+# de las variabels que usamos en el modelo
+names(shp)[7:14] <- c("dvera", "dwat", "v1", "v2", "v3", "v4", "v5", "v6")
+scale(dataciervo[,7:14])
+# Formula:
+# cov_scalada <- (covariable-centre)/scale
+
+shp$dvera <- (shp$dvera - 2053) / 2086
+shp$dwat <- (shp$dwat - 647.01) / 420.4
+shp$v1 <- (shp$v1 - 37.9) / 53.1
+shp$v2 <- (shp$v2 - 58) / 62.6
+shp$v3 <- (shp$v3 - 31.8) / 54.4
+shp$v4 <- (shp$v4 - 3.1) / 15.9
+shp$v5 <- (shp$v5 - 7.4) / 14.3
+shp$v6 <- (shp$v6 - 16.5) / 38.7
+
+shp@data$time <- 1
+
+# Ahora podemos hacer las predicciones (tarda un rato porque hay bastantes celdas en el mapa)
+mcompleto_pred <- predict(Time.VeraWat, newdata=shp@data, type = "state")
+shp@data$Time.VeraWat.Pred <- mcompleto_pred$Predicted
+writeOGR(shp, "/home/javifl/IREC/master_david/variables/", "Time_VeraWat_Pred.shp", "ESRI Shapefile")
+plot(E.psi, axes=FALSE, col=terrain.colors(100))
