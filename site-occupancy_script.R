@@ -318,6 +318,8 @@ fm10 <- pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
 # 19/05/2020
 # Proyección de las predicciones de N-mixture model Royle (2004)
 # setwd("/home/javifl/IREC/master_david/pcount")
+# library(unmarked)
+# library(raster)
 
 # Vamos a correr un modelo para ciervo usando la función pcount de igual forma 
 # que la vez anterior
@@ -349,9 +351,10 @@ plogis(coef(null, type="det"))		# Probabilidad de detección
 
 # Vamos a ajustar un modelo más complejo:
 Time.VeraWat <- pcount(~time ~dvera+dwat, d2015c, K = 150)
+Time.VeraWatLC <- pcount(~time ~dvera+dwat+v1+v2+v3+v4+v5+v6, d2015c, K = 150)
 
 # Lo inspeccionamos
-summary(Time.VeraWat)
+summary(Time.VeraWatLC)
 
 # Aquí podemos ver las dos partes de las que se compone el modelo. Por un lado la abundancia,
 # que viene determinada por las covariables dvera y dwat, y por otro lado la probabilidad de
@@ -363,7 +366,7 @@ summary(Time.VeraWat)
 
 # Examinamos los estimates (backtransformados)
 coef(Time.VeraWat, type="state")      # link scale (= log)
-exp(coef(Time.VeraWat, type="state")) # backtransformado (= elevado sobre la base e)
+exp(coef(Time.VeraWatLC, type="state")) # backtransformado (= elevado sobre la base e)
 coef(Time.VeraWat, type="det")         # link scale (= logit)
 plogis(coef(Time.VeraWat, type="det")) # backtransformado (= inversa de logit)
 
@@ -384,12 +387,12 @@ scale(dataciervo[,7:14])
 
 variables$dvera <- (variables$dvera - 2053) / 2086
 variables$dwat <- (variables$dwat - 647.01) / 420.4
-#variables$v1 <- (variables$v1 - 37.9) / 53.1
-#variables$v2 <- (variables$v2 - 58) / 62.6
-#variables$v3 <- (variables$v3 - 31.8) / 54.4
-#variables$v4 <- (variables$v4 - 3.1) / 15.9
-#variables$v5 <- (variables$v5 - 7.4) / 14.3
-#variables$v6 <- (variables$v6 - 16.5) / 38.7
+variables$v1 <- (variables$v1 - 37.9) / 53.1
+variables$v2 <- (variables$v2 - 58) / 62.6
+variables$v3 <- (variables$v3 - 31.8) / 54.4
+variables$v4 <- (variables$v4 - 3.1) / 15.9
+variables$v5 <- (variables$v5 - 7.4) / 14.3
+variables$v6 <- (variables$v6 - 16.5) / 38.7
 
 # Una vez transformadas, podemos usar estas variables para proyectar las predicciones de abundancia sobre
 # el mapa de nuestras covariables. Esto sería "resolver la ecuación" para cada una de las celdillas
@@ -397,10 +400,12 @@ variables$dwat <- (variables$dwat - 647.01) / 420.4
 # área de estudio.
 # Esto puede tardar un poco...
 Time.VeraWat_pred <- predict(Time.VeraWat, newdata=variables, type = "state")
+Time.VeraWatLC_pred <- predict(Time.VeraWatLC, newdata=variables, type = "state")
 
 # Como resultado tenemos otro stack de rasters en el que se nos muestran las predicciones de abundancias, el
 # error estandar y los máximos y mínimos
-plot(Time.VeraWat_pred, axes=FALSE, col=terrain.colors(100))
+plot(Time.VeraWat_pred$Predicted, axes=FALSE, col=terrain.colors(100))
+plot(Time.VeraWatLC_pred$Predicted, axes=FALSE, col=terrain.colors(100))
 
 # Al hacerlo con las variabels de usos de suelo los resultados salen bastante mal. 
 # Mi impresión es que tiene que ver con el tipo de varable, que asumimos como continuas cuando creo que
