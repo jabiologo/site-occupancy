@@ -412,6 +412,55 @@ plot(Time.VeraWatLC_pred$Predicted, axes=FALSE, col=terrain.colors(100))
 # debería ser más bien un factor...
 
 
-#############
+################################################################################
+# 15/06/2020
+# Análisis de componentes principales para las variables de land-cover
+
+library(raster)
+library(ade4)
+library(factoextra)
+variables <- stack(list.files(path="/home/javifl/IREC/master_david/variables_raster",pattern='*.tif', full.names=TRUE))
+cover <- variables[[3:8]]
+help(dudi.pca)
+
+cover_pca <- dudi.pca(data.frame(na.omit(cover[[1]][]),na.omit(cover[[2]][]),na.omit(cover[[3]][]),
+                                 na.omit(cover[[4]][]),na.omit(cover[[5]][]),na.omit(cover[[6]][])), nf =6, scannf = FALSE)
+
+
+fviz_pca_var(cover_pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+)
+
+
+cover_pca$c1
+
+pc1 <- cover[[1]]
+pc1[!is.na(pc1[])] <- cover_pca$li$Axis1
+
+pc2 <- cover[[1]]
+pc2[!is.na(pc2[])] <- cover_pca$li$Axis2
+
+pc3 <- cover[[1]]
+pc3[!is.na(pc3[])] <- cover_pca$li$Axis3
+
+pc4 <- cover[[1]]
+pc4[!is.na(pc4[])] <- cover_pca$li$Axis4
+
+pc5 <- cover[[1]]
+pc5[!is.na(pc5[])] <- cover_pca$li$Axis5
+
+pc6 <- cover[[1]]
+pc6[!is.na(pc6[])] <- cover_pca$li$Axis6
+
+writeRaster(pc1, "/home/javifl/IREC/master_david/variables_raster/pc1.tif")
+writeRaster(pc2, "/home/javifl/IREC/master_david/variables_raster/pc2.tif")
+writeRaster(pc3, "/home/javifl/IREC/master_david/variables_raster/pc3.tif")
+writeRaster(pc4, "/home/javifl/IREC/master_david/variables_raster/pc4.tif")
+writeRaster(pc5, "/home/javifl/IREC/master_david/variables_raster/pc5.tif")
+writeRaster(pc6, "/home/javifl/IREC/master_david/variables_raster/pc6.tif")
+
+
 
 
