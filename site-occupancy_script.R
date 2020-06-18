@@ -461,6 +461,46 @@ writeRaster(pc4, "/home/javifl/IREC/master_david/variables_raster/pc4.tif")
 writeRaster(pc5, "/home/javifl/IREC/master_david/variables_raster/pc5.tif")
 writeRaster(pc6, "/home/javifl/IREC/master_david/variables_raster/pc6.tif")
 
+################################################################################
+# 18/06/2020
 
+library(lattice)
+library(parallel)
+library(Rcpp)
+library(unmarked)
 
+data <- read.csv("/home/javifl/IREC/master_david/david_17062020/datos_2015limpio5.csv")
 
+datagamo <- data[data$sp == "gamo",]
+datagamo <- na.omit(datagamo)#eliminanos los valores nulos
+head(datagamo)
+
+y <- datagamo[,5:14]
+n <- nrow(datagamo)
+
+d2015.site <- data.frame(scale(datagamo[,c(15,16,23,24,25,26,27)]))
+
+time <- as.factor(rep(c(1:10),n))
+d2015.obs <- data.frame(time)
+
+d2015 <- unmarkedFrameOccu(y = y, siteCovs = d2015.site,obsCovs=d2015.obs)
+
+head(d2015)
+summary(d2015)
+
+fm1<-occu(~1 ~dvera, d2015)
+fm2<-occu(~time ~dvera, d2015)
+fm3<-occu(~1 ~dwat, d2015)
+fm4<-occu(~time ~dwat, d2015)
+fm5<-occu(~1 ~pc1+pc2+pc3+pc4+pc5, d2015)
+fm6<-occu(~time ~pc1+pc2+pc3+pc4+pc5, d2015)
+fm7<-occu(~1 ~dvera + dwat, d2015)
+fm8<-occu(~time ~dvera + dwat, d2015)
+fm9<-occu(~1 ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015)
+fm10<-occu(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015)
+
+fm1;fm2;fm3;fm4;fm5;fm6;fm7;fm8;fm9;fm10
+fmlist<-fitList(primero=fm1, segundo=fm2, tercero=fm3, cuarto=fm4, quinto=fm5, sexto=fm6, septimo=fm7, octavo=fm8, noveno=fm9, decimo=fm10)
+modSel(fmlist)
+
+summary(fm9)
