@@ -478,12 +478,13 @@ head(datagamo)
 y <- datagamo[,5:14]
 n <- nrow(datagamo)
 
-d2015.site <- data.frame(scale(datagamo[,c(15,16,23,24,25,26,27)]))
+# No estoy seguro de si sería necesario estandarizar las variables de los PCAs
+d2015.site <- data.frame(scale(datagamo[,c(15,16,23,24,25,26,27)])) 
 
 time <- as.factor(rep(c(1:10),n))
 d2015.obs <- data.frame(time)
 
-d2015 <- unmarkedFrameOccu(y = y, siteCovs = d2015.site,obsCovs=d2015.obs)
+d2015 <- unmarkedFrameOccu(y = y, siteCovs = d2015.site, obsCovs=d2015.obs)
 
 head(d2015)
 summary(d2015)
@@ -503,4 +504,81 @@ fm1;fm2;fm3;fm4;fm5;fm6;fm7;fm8;fm9;fm10
 fmlist<-fitList(primero=fm1, segundo=fm2, tercero=fm3, cuarto=fm4, quinto=fm5, sexto=fm6, septimo=fm7, octavo=fm8, noveno=fm9, decimo=fm10)
 modSel(fmlist)
 
-summary(fm9)
+summary(fm9) # Salen NaNs y estimates muy rarunos
+
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site,obsCovs=d2015.obs)
+
+fm1<-pcount(~1 ~dvera, d2015c, K = 150)
+fm2<-pcount(~time ~dvera, d2015c, K = 150)
+fm3<-pcount(~1 ~dwat, d2015c, K = 150)
+fm4<-pcount(~time ~dwat, d2015c, K = 150)
+fm5<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm6<-pcount(~time ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm7<-pcount(~1 ~dvera + dwat, d2015c, K = 150)
+fm8<-pcount(~time ~dvera + dwat, d2015c, K= 150)
+fm9<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm10<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+
+fm1;fm2;fm3;fm4;fm5;fm6;fm7;fm8;fm9;fm10
+fmlist<-fitList(primero=fm1, segundo=fm2, tercero=fm3, cuarto=fm4, quinto=fm5, sexto=fm6, septimo=fm7, octavo=fm8, noveno=fm9, decimo=fm10)
+modSel(fmlist)
+
+summary(fm9) # Sale warining y estimates demasiado altos
+
+
+################################################################################
+
+dataciervo <- data[data$sp == "ciervo",]
+dataciervo <- na.omit(dataciervo)
+head(dataciervo)
+
+
+y <- dataciervo[,3:14]
+n <- nrow(dataciervo)
+
+
+d2015.site <- data.frame(scale(dataciervo[,c(15,16,23,24,25,26,27)]))
+
+
+time <- as.factor(rep(c(1:12),n))
+d2015.obs <- data.frame(time)
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site,obsCovs=d2015.obs)
+
+head(d2015c)
+summary(d2015c)
+
+fm1<-pcount(~1 ~dvera, d2015c, K = 150)
+fm2<-pcount(~time ~dvera, d2015c, K = 150)
+fm3<-pcount(~1 ~dwat, d2015c, K = 150)
+fm4<-pcount(~time ~dwat, d2015c, K = 150)
+fm5<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm6<-pcount(~time ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm7<-pcount(~1 ~dvera + dwat, d2015c, K = 150)
+fm8<-pcount(~time ~dvera + dwat, d2015c, K= 150)
+fm9<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm10<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+
+fm1;fm2;fm3;fm4;fm5;fm6;fm7;fm8;fm9;fm10
+fmlist<-fitList(primero=fm1, segundo=fm2, tercero=fm3, cuarto=fm4, quinto=fm5, sexto=fm6, septimo=fm7, octavo=fm8, noveno=fm9, decimo=fm10)
+modSel(fmlist)
+
+summary(fm10) #(este es el modelo que miramos por ser el m?s ajustado, y del que obtenemos los estimates)
+
+# Vemos como están centradas y aplicamos la fórmula
+scale(dataciervo[,c(15,16,23,24,25,26,27)])
+
+library(raster)
+variables <- stack(list.files(path="/home/javifl/IREC/master_david/variables_raster",pattern='*.tif', full.names=TRUE))
+
+variables$dvera <- (variables$dvera - 2113.52868026) / 2182.1243541
+variables$dwat <- (variables$dwat - 737.95705705) / 451.7157191
+variables$pc1 <- (variables$pc1 - (-0.36966496)) / 1.1953509
+variables$pc2 <- (variables$pc2 - 0.65164198) / 0.7663623
+variables$pc3 <- (variables$pc3 - 0.47492335) / 1.2962557
+variables$pc4 <- (variables$pc4 - (-0.08217354)) / 0.8082859
+variables$pc5 <- (variables$pc5 - 0.06771092) / 1.3015840
+
+fm10_pred <- predict(fm10, newdata=variables, type = "state")
+
+plot(fm10_pred$Predicted, axes=FALSE)
+
