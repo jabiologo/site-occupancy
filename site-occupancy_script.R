@@ -673,7 +673,7 @@ ss <- fm11_pred$Predicted
 
 
 fm10<-pcount(~time ~pc1+pc2+pc3+pc4+dvera+dwat, d2015c, K = 150)
-fm27_pred <- predict(fm27, newdata=variables, type = "state")
+fm27_pred <- predict(fm19, newdata=variables, type = "state")
 plot(fm27_pred$Predicted, axes=FALSE)
 
 
@@ -818,7 +818,6 @@ library(corrplot)
 vv <- data.frame(cbind(na.omit(variables$dvera[]),na.omit(variables$dwat[]),na.omit(variables$pc1[]), 
             na.omit(variables$pc2[]),na.omit(variables$pc3[]),na.omit(variables$pc4[]),na.omit(variables$pc5[])))
 names(vv) <- c("dvera", "dwat", "pc1", "pc2", "pc3", "pc4", "pc5")
-corrplot(cor(cbind(na.omit(variables$dvera[]),na.omit(variables$dwat[]),na.omit(variables$pc1[]), 
-                   na.omit(variables$pc2[]),na.omit(variables$pc3[]),na.omit(variables$pc4[]),na.omit(variables$pc5[]))))
-corrplot(cor(d2015.site), "number")
-
+corrplot(cor(vv), "number")
+corrplot.mixed((cor(d2015.site)), upper = "ellipse")
+corrplot.mixed((cor(vv)), upper = "ellipse")
