@@ -582,3 +582,243 @@ fm10_pred <- predict(fm10, newdata=variables, type = "state")
 
 plot(fm10_pred$Predicted, axes=FALSE)
 
+################################################################################
+
+data <- read.csv("/home/javifl/IREC/master_david/david_19062020/datos_2015limpio7.csv")
+
+dataciervo <- data[data$sp == "ciervo",]
+head(dataciervo)
+
+y <- dataciervo[,3:20]
+n <- nrow(dataciervo)
+
+# No estoy seguro de si sería necesario estandarizar las variables de los PCAs
+d2015.site <- data.frame(scale(dataciervo[,c(21,22,29:33)])) 
+
+d2015.obs <- data.frame(as.factor(as.vector(t(dataciervo[,35:52]))))
+names(d2015.obs) <- "time"
+
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site, obsCovs=d2015.obs)
+
+fm1<-pcount(~1 ~dvera, d2015c, K = 150)
+fm2<-pcount(~time ~dvera, d2015c, K = 150)
+fm3<-pcount(~1 ~dwat, d2015c, K = 150)
+fm4<-pcount(~time ~dwat, d2015c, K = 150)
+fm5<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm6<-pcount(~time ~pc1+pc2+pc3+pc4+pc5, d2015c, K = 150)
+fm7<-pcount(~1 ~dvera + dwat, d2015c, K = 150)
+fm8<-pcount(~time ~dvera + dwat, d2015c, K= 150)
+fm9<-pcount(~1 ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm10<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+#fm11<-pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
+
+
+
+scale(dataciervo[,c(21,22,29:33)])
+
+library(raster)
+variables <- stack(list.files(path="/home/javifl/IREC/master_david/variables_raster",pattern='*.tif', full.names=TRUE))
+
+variables$dvera <- (variables$dvera - 1869.998) / 2008.5392896
+variables$dwat <- (variables$dwat - 617.3486) / 408.5496179
+variables$pc1 <- (variables$pc1 - 0.1626645) / 1.2750652
+variables$pc2 <- (variables$pc2 - 0.5680776) / 0.6207696
+variables$pc3 <- (variables$pc3 - 0.4596181) / 1.1003653
+variables$pc4 <- (variables$pc4 - (-0.1316229)) / 0.6793139
+variables$pc5 <- (variables$pc5 - 0.003784568) / 0.9570490
+
+fm10_pred <- predict(fm10, newdata=variables, type = "state")
+
+plot(fm10_pred$Predicted, axes=FALSE)
+
+# Cn las V normales
+
+y <- dataciervo[,3:20]
+n <- nrow(dataciervo)
+
+# No estoy seguro de si sería necesario estandarizar las variables de los PCAs
+d2015.site <- data.frame(scale(dataciervo[,c(21:28)])) 
+
+d2015.obs <- data.frame(as.factor(as.vector(t(dataciervo[,35:52]))))
+names(d2015.obs) <- "time"
+
+d2015c <- unmarkedFramePCount(y = y, siteCovs = d2015.site, obsCovs=d2015.obs)
+
+fm11<-pcount(~time ~v1+v2+v3+v4+v5+v6+dvera+dwat, d2015c, K = 150)
+
+scale(dataciervo[,c(21:28)])
+
+variables <- stack(list.files(path="/home/javifl/IREC/master_david/variables_raster",pattern='*.tif', full.names=TRUE))
+
+variables$dvera <- (variables$dvera - 1869.998) / 2008.5392896
+variables$dwat <- (variables$dwat - 617.3486) / 408.5496179
+variables$v1 <- (variables$v1 - 35.235294) / 50.53235
+variables$v2 <- (variables$v2 - 58.647059) / 62.74425
+variables$v3 <- (variables$v3 - 35.000000) / 53.19717
+variables$v4 <- (variables$v4 - 2.382353) / 13.89139
+variables$v5 <- (variables$v5 - 5.676471) / 12.85047
+variables$v6 <- (variables$v6 - 18.088235) / 37.56398
+
+fm11_pred <- predict(fm11, newdata=variables, type = "state")
+
+plot(fm11_pred$Predicted, axes=FALSE)
+
+plot(fm11_pred$Predicted[fm11_pred$Predicted<1000])
+
+ss <- fm11_pred$Predicted
+
+#mal
+# ~pc1+pc2+pc4+pc5+dvera+dwat
+# ~pc1+pc2+pc3+pc4+dvera+dwat
+
+
+fm10<-pcount(~time ~pc1+pc2+pc3+pc4+dvera+dwat, d2015c, K = 150)
+fm27_pred <- predict(fm27, newdata=variables, type = "state")
+plot(fm27_pred$Predicted, axes=FALSE)
+
+
+fm11<-pcount(~time ~pc1+dvera+dwat, d2015c, K = 150)
+fm12<-pcount(~time ~pc2+dvera+dwat, d2015c, K = 150)
+fm13<-pcount(~time ~pc3+dvera+dwat, d2015c, K = 150)
+fm14<-pcount(~time ~pc4+dvera+dwat, d2015c, K = 150)
+fm15<-pcount(~time ~pc5+dvera+dwat, d2015c, K = 150)
+fm16<-pcount(~time ~pc1+pc2+dvera+dwat, d2015c, K = 150)
+fm17<-pcount(~time ~pc1+pc3+dvera+dwat, d2015c, K = 150)
+fm18<-pcount(~time ~pc1+pc4+dvera+dwat, d2015c, K = 150)
+fm19<-pcount(~time ~pc1+pc5+dvera+dwat, d2015c, K = 150)
+fm20<-pcount(~time ~pc2+pc3+dvera+dwat, d2015c, K = 150)
+fm21<-pcount(~time ~pc2+pc4+dvera+dwat, d2015c, K = 150)
+fm22<-pcount(~time ~pc2+pc5+dvera+dwat, d2015c, K = 150)
+fm23<-pcount(~time ~pc3+pc4+dvera+dwat, d2015c, K = 150)
+fm24<-pcount(~time ~pc3+pc5+dvera+dwat, d2015c, K = 150)
+fm25<-pcount(~time ~pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm26<-pcount(~time ~pc1+pc2+pc3+dvera+dwat, d2015c, K = 150)
+fm27<-pcount(~time ~pc1+pc2+pc4+dvera+dwat, d2015c, K = 150)
+fm28<-pcount(~time ~pc1+pc2+pc5+dvera+dwat, d2015c, K = 150)
+fm29<-pcount(~time ~pc1+pc3+pc4+dvera+dwat, d2015c, K = 150)
+fm30<-pcount(~time ~pc1+pc3+pc5+dvera+dwat, d2015c, K = 150)
+fm31<-pcount(~time ~pc1+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm32<-pcount(~time ~pc2+pc3+pc4+dvera+dwat, d2015c, K = 150)
+fm33<-pcount(~time ~pc2+pc3+pc5+dvera+dwat, d2015c, K = 150)
+fm34<-pcount(~time ~pc2+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm35<-pcount(~time ~pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm36<-pcount(~time ~pc1+pc2+pc3+pc4+dvera+dwat, d2015c, K = 150)
+fm37<-pcount(~time ~pc1+pc2+pc3+pc5+dvera+dwat, d2015c, K = 150)
+fm38<-pcount(~time ~pc1+pc2+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm39<-pcount(~time ~pc1+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm40<-pcount(~time ~pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm41<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+
+fm42<-pcount(~time ~pc1+dvera, d2015c, K = 150)
+fm43<-pcount(~time ~pc2+dvera, d2015c, K = 150)
+fm44<-pcount(~time ~pc3+dvera, d2015c, K = 150)
+fm45<-pcount(~time ~pc4+dvera, d2015c, K = 150)
+fm46<-pcount(~time ~pc5+dvera, d2015c, K = 150)
+fm47<-pcount(~time ~pc1+pc2+dvera, d2015c, K = 150)
+fm48<-pcount(~time ~pc1+pc3+dvera, d2015c, K = 150)
+fm49<-pcount(~time ~pc1+pc4+dvera, d2015c, K = 150)
+fm50<-pcount(~time ~pc1+pc5+dvera, d2015c, K = 150)
+fm51<-pcount(~time ~pc2+pc3+dvera, d2015c, K = 150)
+fm52<-pcount(~time ~pc2+pc4+dvera, d2015c, K = 150)
+fm53<-pcount(~time ~pc2+pc5+dvera, d2015c, K = 150)
+fm54<-pcount(~time ~pc3+pc4+dvera, d2015c, K = 150)
+fm55<-pcount(~time ~pc3+pc5+dvera, d2015c, K = 150)
+fm56<-pcount(~time ~pc4+pc5+dvera, d2015c, K = 150)
+fm57<-pcount(~time ~pc1+pc2+pc3+dvera, d2015c, K = 150)
+fm58<-pcount(~time ~pc1+pc2+pc4+dvera, d2015c, K = 150)
+fm59<-pcount(~time ~pc1+pc2+pc5+dvera, d2015c, K = 150)
+fm60<-pcount(~time ~pc1+pc3+pc4+dvera, d2015c, K = 150)
+fm61<-pcount(~time ~pc1+pc3+pc5+dvera, d2015c, K = 150)
+fm62<-pcount(~time ~pc1+pc4+pc5+dvera, d2015c, K = 150)
+fm63<-pcount(~time ~pc2+pc3+pc4+dvera, d2015c, K = 150)
+fm64<-pcount(~time ~pc2+pc3+pc5+dvera, d2015c, K = 150)
+fm65<-pcount(~time ~pc2+pc4+pc5+dvera, d2015c, K = 150)
+fm66<-pcount(~time ~pc3+pc4+pc5+dvera, d2015c, K = 150)
+fm67<-pcount(~time ~pc1+pc2+pc3+pc4+dvera, d2015c, K = 150)
+fm68<-pcount(~time ~pc1+pc2+pc3+pc5+dvera, d2015c, K = 150)
+fm69<-pcount(~time ~pc1+pc2+pc4+pc5+dvera, d2015c, K = 150)
+fm70<-pcount(~time ~pc1+pc3+pc4+pc5+dvera, d2015c, K = 150)
+fm71<-pcount(~time ~pc2+pc3+pc4+pc5+dvera, d2015c, K = 150)
+fm72<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera, d2015c, K = 150)
+
+fm73<-pcount(~time ~pc1+dwat, d2015c, K = 150)
+fm74<-pcount(~time ~pc2+dwat, d2015c, K = 150)
+fm75<-pcount(~time ~pc3+dwat, d2015c, K = 150)
+fm76<-pcount(~time ~pc4+dwat, d2015c, K = 150)
+fm77<-pcount(~time ~pc5+dwat, d2015c, K = 150)
+fm78<-pcount(~time ~pc1+pc2+dwat, d2015c, K = 150)
+fm79<-pcount(~time ~pc1+pc3+dwat, d2015c, K = 150)
+fm80<-pcount(~time ~pc1+pc4+dwat, d2015c, K = 150)
+fm81<-pcount(~time ~pc1+pc5+dwat, d2015c, K = 150)
+fm82<-pcount(~time ~pc2+pc3+dwat, d2015c, K = 150)
+fm83<-pcount(~time ~pc2+pc4+dwat, d2015c, K = 150)
+fm84<-pcount(~time ~pc2+pc5+dwat, d2015c, K = 150)
+fm85<-pcount(~time ~pc3+pc4+dwat, d2015c, K = 150)
+fm86<-pcount(~time ~pc3+pc5+dwat, d2015c, K = 150)
+fm87<-pcount(~time ~pc4+pc5+dwat, d2015c, K = 150)
+fm88<-pcount(~time ~pc1+pc2+pc3+dwat, d2015c, K = 150)
+fm89<-pcount(~time ~pc1+pc2+pc4+dwat, d2015c, K = 150)
+fm90<-pcount(~time ~pc1+pc2+pc5+dwat, d2015c, K = 150)
+fm91<-pcount(~time ~pc1+pc3+pc4+dwat, d2015c, K = 150)
+fm92<-pcount(~time ~pc1+pc3+pc5+dwat, d2015c, K = 150)
+fm93<-pcount(~time ~pc1+pc4+pc5+dwat, d2015c, K = 150)
+fm94<-pcount(~time ~pc2+pc3+pc4+dwat, d2015c, K = 150)
+fm95<-pcount(~time ~pc2+pc3+pc5+dwat, d2015c, K = 150)
+fm96<-pcount(~time ~pc2+pc4+pc5+dwat, d2015c, K = 150)
+fm97<-pcount(~time ~pc3+pc4+pc5+dwat, d2015c, K = 150)
+fm98<-pcount(~time ~pc1+pc2+pc3+pc4+dwat, d2015c, K = 150)
+fm99<-pcount(~time ~pc1+pc2+pc3+pc5+dwat, d2015c, K = 150)
+fm100<-pcount(~time ~pc1+pc2+pc4+pc5+dwat, d2015c, K = 150)
+fm101<-pcount(~time ~pc1+pc3+pc4+pc5+dwat, d2015c, K = 150)
+fm102<-pcount(~time ~pc2+pc3+pc4+pc5+dwat, d2015c, K = 150)
+fm103<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dwat, d2015c, K = 150)
+
+
+fmlist<-fitList(m11=fm11, m12=fm12, m13=fm13, m14=fm14, m15=fm15, 
+                m16=fm16, m17=fm17, m18=fm18, m19=fm19, m20=fm20,
+                m21=fm21, m22=fm22, m23=fm23, m24=fm24, m25=fm25,
+                m26=fm26, m27=fm27, m28=fm28, m29=fm29, m30=fm30,
+                m31=fm31, m32=fm32, m33=fm33, m34=fm34, m35=fm35,
+                m36=fm36, m37=fm37, m38=fm38, m39=fm39, m40=fm40,
+                m41=fm41, m42=fm42, m43=fm43, m44=fm44, m45=fm45,
+                m46=fm46, m47=fm47, m48=fm48, m49=fm49, m50=fm50,
+                m51=fm51, m52=fm52, m53=fm53, m54=fm54, m55=fm55,
+                m56=fm56, m57=fm57, m58=fm58, m59=fm59, m60=fm60,
+                m61=fm61, m62=fm62, m63=fm63, m64=fm64, m65=fm65,
+                m66=fm66, m67=fm67, m68=fm68, m69=fm69, m70=fm70,
+                m71=fm71, m72=fm72, m73=fm73, m74=fm74, m75=fm75,
+                m76=fm76, m77=fm77, m78=fm78, m79=fm79, m80=fm80,
+                m81=fm81, m82=fm82, m83=fm83, m84=fm84, m85=fm85,
+                m86=fm86, m87=fm87, m88=fm88, m89=fm89, m90=fm90,
+                m91=fm91, m92=fm92, m93=fm93, m94=fm94, m95=fm95,
+                m96=fm96, m97=fm97, m98=fm98, m99=fm99, m100=fm100,
+                m101=fm101, m102=fm102, m103=fm103)
+
+
+
+
+
+
+
+
+modSel(fmlist)
+
+
+fm27<-pcount(~time ~pc1+pc2+    pc4+    dvera+dwat, d2015c, K = 150)
+fm19<-pcount(~time ~pc1+            pc5+dvera+dwat, d2015c, K = 150)
+fm29<-pcount(~time ~pc1+    pc3+pc4+    dvera+dwat, d2015c, K = 150)
+fm11<-pcount(~time ~pc1+                dvera+dwat, d2015c, K = 150)
+fm36<-pcount(~time ~pc1+pc2+pc3+pc4+    dvera+dwat, d2015c, K = 150)
+fm41<-pcount(~time ~pc1+pc2+pc3+pc4+pc5+dvera+dwat, d2015c, K = 150)
+fm16<-pcount(~time ~pc1+pc2+            dvera+dwat, d2015c, K = 150)
+fm38<-pcount(~time ~pc1+pc2+    pc4+pc5+dvera+dwat, d2015c, K = 150)
+
+
+library(corrplot)
+vv <- data.frame(cbind(na.omit(variables$dvera[]),na.omit(variables$dwat[]),na.omit(variables$pc1[]), 
+            na.omit(variables$pc2[]),na.omit(variables$pc3[]),na.omit(variables$pc4[]),na.omit(variables$pc5[])))
+names(vv) <- c("dvera", "dwat", "pc1", "pc2", "pc3", "pc4", "pc5")
+corrplot(cor(cbind(na.omit(variables$dvera[]),na.omit(variables$dwat[]),na.omit(variables$pc1[]), 
+                   na.omit(variables$pc2[]),na.omit(variables$pc3[]),na.omit(variables$pc4[]),na.omit(variables$pc5[]))))
+corrplot(cor(d2015.site), "number")
+
