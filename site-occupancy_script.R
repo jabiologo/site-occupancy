@@ -821,3 +821,40 @@ names(vv) <- c("dvera", "dwat", "pc1", "pc2", "pc3", "pc4", "pc5")
 corrplot(cor(vv), "number")
 corrplot.mixed((cor(d2015.site)), upper = "ellipse")
 corrplot.mixed((cor(vv)), upper = "ellipse")
+
+
+
+################################################################################
+# Reclasificación de un raster por quantiles y evaluación mediante Kappa de Cohen
+
+library(raster)
+library(spatialEco)
+
+foto <- raster("/home/javifl/IREC/master_david/kappa/ciervofoto_pred.tif")
+
+tele <- raster("/home/javifl/IREC/master_david/kappa/ciervotele_pred.tif")
+
+quantile(foto)
+
+quan <- matrix(c(0.0,  1.940705299, 1,
+          1.940705299,  6.142425299, 2,
+          6.142425299, 17.560887337, 3,
+          17.560887337, 77.89667, 4), 4,3, byrow = TRUE)
+
+plot(reclassify(foto, quan))
+
+foto4 <- reclassify(foto, quan)
+
+
+quantile(tele)
+
+quan <- matrix(c(0.0,  0.4137109, 1,
+                 0.4137109,  0.4874967, 2,
+                 0.4874967, 0.5519628, 3,
+                 0.5519628, 0.71, 4), 4,3, byrow = TRUE)
+
+plot(reclassify(tele, quan))
+
+tele4 <- reclassify(tele, quan)
+
+raster.change(foto4, tele4, stat = "kappa" )
