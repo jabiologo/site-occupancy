@@ -825,36 +825,38 @@ corrplot.mixed((cor(vv)), upper = "ellipse")
 
 
 ################################################################################
+# 30/06/2020
 # Reclasificación de un raster por quantiles y evaluación mediante Kappa de Cohen
 
 library(raster)
-library(spatialEco)
+library(psych)
 
+# Cargamos los rasters
 foto <- raster("/home/javifl/IREC/master_david/kappa/ciervofoto_pred.tif")
-
 tele <- raster("/home/javifl/IREC/master_david/kappa/ciervotele_pred.tif")
 
+# Calculamos los cuantiles y hacemos una matriz con las categorizaciones según los cuantiles
 quantile(foto)
-
 quan <- matrix(c(0.0,  1.940705299, 1,
           1.940705299,  6.142425299, 2,
           6.142425299, 17.560887337, 3,
           17.560887337, 77.89667, 4), 4,3, byrow = TRUE)
 
-plot(reclassify(foto, quan))
-
+# Reclasificamos el mapa, lo categorizamos en 4 y lo ploteamos para ver que pinta tiene:
 foto4 <- reclassify(foto, quan)
+plot(foto4)
 
-
+# Hacemos lo mismo con el siguiente mapa
 quantile(tele)
-
 quan <- matrix(c(0.0,  0.4137109, 1,
                  0.4137109,  0.4874967, 2,
                  0.4874967, 0.5519628, 3,
                  0.5519628, 0.71, 4), 4,3, byrow = TRUE)
 
-plot(reclassify(tele, quan))
-
 tele4 <- reclassify(tele, quan)
+plot(tele4)
 
-raster.change(foto4, tele4, stat = "kappa" )
+# Calculamos el kappa de Cohen con el paquete psych. Nos quedamos con el weighted
+# Los valores van desde -1 (concordancia inversa) hasta 1 (concordancia total). Un valor cercano
+# a cero indicaría una categorización al azar
+cohen.kappa(x=cbind(na.omit(foto4[]),na.omit(tele4[])))
